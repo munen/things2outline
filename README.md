@@ -7,8 +7,8 @@ and writes an outline.
 Usage
 -----
 
-    $python read_things.py 
-    Usage: read_things.py [options]
+    $python ReadThingsDB.py 
+    Usage: ReadThingsDB.py [options]
 
     Options:
       -h, --help            show this help message and exit
