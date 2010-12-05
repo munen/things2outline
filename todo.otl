@@ -16,11 +16,11 @@ Parse tags
 
 
 Parse dates
-	Cocoa epoch with double float precision. UNIX epoch is up to 1280000000 (1970), and these numbers are more around 300000000. Cocoa epoch is 2001.
-	http://culturedcode.com/forums/read.php?7,42287
 	attributes
 		datemodified
 		datecreated
+	;Cocoa epoch with double float precision. UNIX epoch is up to 1280000000 (1970), and these numbers are more around 300000000. Cocoa epoch is 2001.
+	;http://culturedcode.com/forums/read.php?7,42287
 
 ----------------------------------------
 [X] 100% Parse todos that have no assigned project
