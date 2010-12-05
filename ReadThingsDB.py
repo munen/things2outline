@@ -19,7 +19,10 @@ def readThingsDB(things_xml_path, outline_file):
       # Get all project names
       # <attribute name="title" type="string">Movies</attribute>
       if attribute_node.attributes['name'].value == 'title':
-        title = attribute_node.childNodes[0].nodeValue.encode("utf-8")
+        try:
+          title = attribute_node.childNodes[0].nodeValue.encode("utf-8")
+        except:
+          continue
         
         # Get ref_ids of all todos for current project
         relationship_nodes = object.getElementsByTagName("relationship")
