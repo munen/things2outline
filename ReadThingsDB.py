@@ -14,20 +14,55 @@ def readThingsDB(things_xml_path, outline_file):
   objects = xml.getElementsByTagName("object")
   
   projects = getProjects(objects)
+  projects.insert(0, getTodosInCategory(objects, 'FocusTrash'))
+  projects.insert(0, getTodosInCategory(objects, 'FocusMaybe'))
+  projects.insert(0, getTodosInCategory(objects, 'FocusNextActions'))
+  projects.insert(0, getTodosInCategory(objects, 'FocusInbox'))
   
   projects = getTodos(projects, objects)
  
   writeOutline(outline_file, projects)
 
 
+def getTodosInCategory(objects, things_category):
+  """ Get todos in inbox/trash/next/maybe """
+
+  # <attribute name="identifier" >FocusInbox</attribute>
+  #<relationship name="focustodos" idrefs="z8663 z7372 "></relationship>
+
+  for object in objects:
+    if object.attributes["type"].value != 'FOCUS':
+      continue
+    attribute_nodes = object.getElementsByTagName("attribute")
+    for attribute_node in attribute_nodes:
+
+      if attribute_node.childNodes[0].nodeValue == things_category: 
+        relationship_nodes = object.getElementsByTagName("relationship")
+        for relationship_node in relationship_nodes:
+          try:
+            if relationship_node.attributes['name'].value == 'focustodos':
+              inbox_todos = relationship_node.attributes['idrefs'].value
+          except:
+            # The inbox could be empty
+            inbox_todos = ""
+
+  # Switch Things naming with something more familiar
+  title = {'FocusTrash': 'TRASH', 'FocusMaybe': 'MAYBE', 'FocusInbox': 'INBOX',
+    'FocusNextActions': 'NEXT'}[things_category]
+
+  # Same format as in getProjects for a regular project
+  return {'title': title, 'ref_ids': inbox_todos, 'todos':[]}
+
 def writeOutline(outline_file, projects):
   """ Writes the project information to an outline file """
 
   fp = open(outline_file, "w")
   for project in projects:
-    fp.write(project['title'] + "\n")
-    for todo in project['todos']:
+    fp.write("[" + project['title'] + "]\n")
+    for todo, note in project['todos']:
       fp.write("\t%s"%todo + "\n")
+      if note: fp.write("\t\t%s"%note + "\n")
+    fp.write("\n")
   fp.close()
 
 
@@ -42,11 +77,21 @@ def getTodos(projects, objects):
         if object.attributes['id'].value == ref_id:
           attribute_nodes = object.getElementsByTagName("attribute")
           title = ""
+          content = ""
           for attribute_node in attribute_nodes:
             if attribute_node.attributes['name'].value == 'title':
               title = attribute_node.childNodes[0].nodeValue.encode("utf-8")
               break
-          project['todos'].append(title)
+          # Check if todo has a note attached
+          if title:
+            for attribute_node in attribute_nodes:
+              if attribute_node.attributes['name'].value == 'content':
+                content = attribute_node.childNodes[0].nodeValue.encode("utf-8")
+                # todo: In content there is a lot of junk. Clean it out!
+                content = "HAS NOTE"
+                break
+
+          project['todos'].append([title, content])
   return projects
 
 
