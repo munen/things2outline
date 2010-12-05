@@ -2,7 +2,10 @@ ABOUT
 -----
 
 This Python script parses a [Things](http://culturedcode.com/things/) database
-and writes an outline.
+and writes an outline. 
+
+Outlines can be greatly edited with [Vimoutliner](http://www.vimoutliner.org) or [Emacs
+Org-Mode](http://orgmode.org/).
 
 Usage
 -----
@@ -15,11 +18,24 @@ Usage
       -d DB, --database=DB  path to things Database.xml
       -o OTL, --output=OTL  Output outline
 
+Todo
+----
+
+Find those in TODO.otl
+
 
 Sample Output
 -------------
 
-    Review
+    [INBOX]
+            Write script to emulate DynDNS
+    [NEXT]
+            Take out the trash
+    [MAYBE]
+            Learn to play the piano
+    [TRASH]
+            Notes in Things trash
+    [Review]
             Gather loose papers
             Process notes
             Review Someday
