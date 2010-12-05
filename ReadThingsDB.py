@@ -5,10 +5,56 @@ import sys
 from optparse import OptionParser
 
 def readThingsDB(things_xml_path, outline_file):
+  """
+    Wrapper method. Reading things database, extracing all projects and todos,
+    Then writing an outline.
+  """
+
   xml = minidom.parse(things_xml_path)
   objects = xml.getElementsByTagName("object")
   
-  # Get projects
+  projects = getProjects(objects)
+  
+  projects = getTodos(projects, objects)
+ 
+  writeOutline(outline_file, projects)
+
+
+def writeOutline(outline_file, projects):
+  """ Writes the project information to an outline file """
+
+  fp = open(outline_file, "w")
+  for project in projects:
+    fp.write(project['title'] + "\n")
+    for todo in project['todos']:
+      fp.write("\t%s"%todo + "\n")
+  fp.close()
+
+
+def getTodos(projects, objects):
+  """
+    Get todos for each project
+  """
+
+  for project in projects:
+    for ref_id in project['ref_ids'].split():
+      for object in objects:
+        if object.attributes['id'].value == ref_id:
+          attribute_nodes = object.getElementsByTagName("attribute")
+          title = ""
+          for attribute_node in attribute_nodes:
+            if attribute_node.attributes['name'].value == 'title':
+              title = attribute_node.childNodes[0].nodeValue.encode("utf-8")
+              break
+          project['todos'].append(title)
+  return projects
+
+
+def getProjects(objects):
+  """
+    Reads all projects into a dictionary
+  """
+  
   projects = []
   for object in objects:
     if object.attributes["type"].value != 'TODO':
@@ -42,27 +88,7 @@ def readThingsDB(things_xml_path, outline_file):
         #in that projects have multile ref_ids.
         if len(ref_ids.split()) > 1:
           projects.append({'title': title, 'ref_ids': ref_ids, 'todos':[]})
-  
-  # Get todos for each project
-  for project in projects:
-    for ref_id in project['ref_ids'].split():
-      for object in objects:
-        if object.attributes['id'].value == ref_id:
-          attribute_nodes = object.getElementsByTagName("attribute")
-          title = ""
-          for attribute_node in attribute_nodes:
-            if attribute_node.attributes['name'].value == 'title':
-              title = attribute_node.childNodes[0].nodeValue.encode("utf-8")
-              break
-          project['todos'].append(title)
- 
-  fp = open(outline_file, "w")
-  for project in projects:
-    fp.write(project['title'] + "\n")
-    for todo in project['todos']:
-      fp.write("\t%s"%todo + "\n")
-    print "\n"
-  fp.close()
+  return projects
 
 if __name__ == "__main__":
   parser = OptionParser()
