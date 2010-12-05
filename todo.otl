@@ -1,0 +1,34 @@
+Eval outline format
+	[PROJECT]
+	:time_created timestamp
+	:time_modified timestamp
+		todo 1
+			:tag1, .., :tagn
+			notes
+		todo n
+
+[_] Parse notes
+	[X] attribute -> name="content" of any todo
+	[_] notes have a lot of junk. find out how to remove it.
+
+
+Parse tags
+
+
+Parse dates
+	Cocoa epoch with double float precision. UNIX epoch is up to 1280000000 (1970), and these numbers are more around 300000000. Cocoa epoch is 2001.
+	http://culturedcode.com/forums/read.php?7,42287
+	attributes
+		datemodified
+		datecreated
+
+----------------------------------------
+[X] 100% Parse todos that have no assigned project
+	[X] INBOX
+	[X] TODAY (All in FocusNextActions) by date
+	[X] NEXT (FocusNextActions)
+	[X] TRASH (FocusTrash)
+	[X] MAYBE (FocusMaybe)
+
+
+
