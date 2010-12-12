@@ -137,11 +137,11 @@ def getTodos(projects, objects):
               # <attribute name="datecreated" >306520491.00000000000000000000
               if attribute_node.attributes['name'].value == 'datecreated':
                 datecreated = convertCocoaEpoch(attribute_node.childNodes[0].\
-                    nodeValue.encode("utf-8"))            
+                    nodeValue.encode("utf-8"))
               #<attribute name="datecompleted" type="date">292880221.18648099899291992188
               if attribute_node.attributes['name'].value == 'datecompleted':
                 datecompleted = convertCocoaEpoch(attribute_node.childNodes[0].\
-                    nodeValue.encode("utf-8"))            
+                    nodeValue.encode("utf-8"))
               if attribute_node.attributes['name'].value == 'content':
                 content = attribute_node.childNodes[0].nodeValue.encode("utf-8")   
                 html = re.sub('\\\\u(..)(..)',"\\u"+r'\2\1', content)
@@ -150,8 +150,6 @@ def getTodos(projects, objects):
                 content = html.text_content().split('\n')
                 for l in html.iterlinks():
                     content += [l[2]]
-                break
-                
             relationship_nodes = object.getElementsByTagName("relationship")
             for relationship_node in relationship_nodes:
               if relationship_node.attributes['name'].value == 'tags':
