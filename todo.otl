@@ -15,8 +15,8 @@ Eval outline format
 Parse tags
 
 
-Parse dates
-	attributes
+[X] Parse dates
+	[X] attributes
 		datemodified
 		datecreated
 	;Cocoa epoch with double float precision. UNIX epoch is up to 1280000000 (1970), and these numbers are more around 300000000. Cocoa epoch is 2001.
