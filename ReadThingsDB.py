@@ -71,7 +71,7 @@ def writeOutline(outline_file, projects):
         fp.write("\t\t:modified %s"%modified + "\n")
       if note: 
           for n in note:
-              fp.write("\t\t%s"%n + "\n")
+              fp.write("\t\t%s" % n.encode("utf-8") + "\n")
     fp.write("\n")
   fp.close()
 
