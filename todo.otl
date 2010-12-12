@@ -7,6 +7,10 @@ Eval outline format
 			notes
 		todo n
 
+[_] Make template
+	[_] Don't just ouput as an outline; make it generic
+	[_] Eval new name - "things export"
+
 [_] Parse notes
 	[X] attribute -> name="content" of any todo
 	[_] notes have a lot of junk. find out how to remove it.
@@ -15,7 +19,9 @@ Eval outline format
 Parse tags
 
 
-[X] Parse dates
+[_] Parse dates
+	[_] parse for projects
+		Eval: only display timestamp for project; not todo -> boilerplate
 	[X] attributes
 		datemodified
 		datecreated
