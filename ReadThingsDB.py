@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from optparse import OptionParser
+from time import strftime
 from xml.dom import minidom
 import sys
-from optparse import OptionParser
+import time
+
+
 
 def readThingsDB(things_xml_path, outline_file):
   """
@@ -59,12 +63,30 @@ def writeOutline(outline_file, projects):
   fp = open(outline_file, "w")
   for project in projects:
     fp.write("[" + project['title'] + "]\n")
-    for todo, note in project['todos']:
+    for todo, note, created, modified in project['todos']:
       fp.write("\t%s"%todo + "\n")
+      fp.write("\t\t:created %s"%created + "\n")
+      if created != modified:
+        fp.write("\t\t:modified %s"%modified + "\n")
       if note: fp.write("\t\t%s"%note + "\n")
     fp.write("\n")
   fp.close()
 
+def convertCocoaEpoch(cocoa_timestamp):
+  """
+    Convert Cocoa epoch timestamp to human readble format.
+    Cocoa epoch is set on 01.01.2001. Things stores dates in cocoa epoch with
+    double precision floats: '310744066.04055202007293701172'
+  """
+
+  # 01.01.2001 as unix epoch timestamp
+  unix_epoch_gap = 978307200
+
+  # We only need the seconds.
+  cocoa_timestamp = int(cocoa_timestamp.split('.')[0])
+  timestamp = cocoa_timestamp + unix_epoch_gap
+  
+  return strftime("%Y-%m-%d %H:%M:%S", time.gmtime(timestamp))
 
 def getTodos(projects, objects):
   """
@@ -76,8 +98,10 @@ def getTodos(projects, objects):
       for object in objects:
         if object.attributes['id'].value == ref_id:
           attribute_nodes = object.getElementsByTagName("attribute")
-          title = ""
-          content = ""
+          title        = ""
+          content      = ""
+          datemodified = ""
+          datecreated  = ""
           for attribute_node in attribute_nodes:
             if attribute_node.attributes['name'].value == 'title':
               title = attribute_node.childNodes[0].nodeValue.encode("utf-8")
@@ -85,13 +109,21 @@ def getTodos(projects, objects):
           # Check if todo has a note attached
           if title:
             for attribute_node in attribute_nodes:
+              # <attribute name="datemodified" >309306984.40529602766036987305
+              if attribute_node.attributes['name'].value == 'datemodified':
+                datemodified = convertCocoaEpoch(attribute_node.childNodes[0].\
+                    nodeValue.encode("utf-8"))
+              # <attribute name="datecreated" >306520491.00000000000000000000
+              if attribute_node.attributes['name'].value == 'datecreated':
+                datecreated = convertCocoaEpoch(attribute_node.childNodes[0].\
+                    nodeValue.encode("utf-8"))
               if attribute_node.attributes['name'].value == 'content':
                 content = attribute_node.childNodes[0].nodeValue.encode("utf-8")
                 # todo: In content there is a lot of junk. Clean it out!
                 content = "HAS NOTE"
                 break
 
-          project['todos'].append([title, content])
+          project['todos'].append([title, content, datecreated, datemodified])
   return projects
 
 
