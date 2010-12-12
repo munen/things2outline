@@ -1,12 +1,13 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from optparse import OptionParser
 from time import strftime
 from xml.dom import minidom
 import sys
+import re
+import lxml.html
 import time
-
-
 
 def readThingsDB(things_xml_path, outline_file):
   """
@@ -68,7 +69,9 @@ def writeOutline(outline_file, projects):
       fp.write("\t\t:created %s"%created + "\n")
       if created != modified:
         fp.write("\t\t:modified %s"%modified + "\n")
-      if note: fp.write("\t\t%s"%note + "\n")
+      if note: 
+          for n in note:
+              fp.write("\t\t%s"%n + "\n")
     fp.write("\n")
   fp.close()
 
@@ -104,8 +107,9 @@ def getTodos(projects, objects):
           datecreated  = ""
           for attribute_node in attribute_nodes:
             if attribute_node.attributes['name'].value == 'title':
-              title = attribute_node.childNodes[0].nodeValue.encode("utf-8")
-              break
+              if attribute_node.childNodes:
+                  title = attribute_node.childNodes[0].nodeValue.encode("utf-8")
+                  break
           # Check if todo has a note attached
           if title:
             for attribute_node in attribute_nodes:
@@ -118,9 +122,13 @@ def getTodos(projects, objects):
                 datecreated = convertCocoaEpoch(attribute_node.childNodes[0].\
                     nodeValue.encode("utf-8"))
               if attribute_node.attributes['name'].value == 'content':
-                content = attribute_node.childNodes[0].nodeValue.encode("utf-8")
-                # todo: In content there is a lot of junk. Clean it out!
-                content = "HAS NOTE"
+                content = attribute_node.childNodes[0].nodeValue.encode("utf-8")   
+                html = re.sub('\\\\u(..)(..)',"\\u"+r'\2\1', content)
+                html = html.decode('unicode-escape')
+                html = lxml.html.fromstring(html)
+                content = html.text_content().split('\n')
+                for l in html.iterlinks():
+                    content += [l[2]]
                 break
 
           project['todos'].append([title, content, datecreated, datemodified])
@@ -180,3 +188,4 @@ if __name__ == "__main__":
     sys.exit(1)
   else:
     readThingsDB(options.database, options.output)
+    
