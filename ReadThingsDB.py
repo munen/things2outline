@@ -25,9 +25,7 @@ def readThingsDB(things_xml_path, outline_file):
   projects.insert(0, getTodosInCategory(objects, 'FocusInbox'))
   
   projects = getTodos(projects, objects)
- 
   writeOutline(outline_file, projects)
-
 
 def getTodosInCategory(objects, things_category):
   """ Get todos in inbox/trash/next/maybe """
@@ -64,11 +62,16 @@ def writeOutline(outline_file, projects):
   fp = open(outline_file, "w")
   for project in projects:
     fp.write("[" + project['title'] + "]\n")
-    for todo, note, created, modified in project['todos']:
+    for todo, note, created, modified, completed, tags in project['todos']:
       fp.write("\t%s"%todo + "\n")
+      if tags:
+        fp.write("\t\t:tags %s" % unicode(", ",'utf-8').join(tags) + "\n")
+          
       fp.write("\t\t:created %s"%created + "\n")
       if created != modified:
         fp.write("\t\t:modified %s"%modified + "\n")
+      if completed:
+        fp.write("\t\t:completed %s"%completed + "\n")
       if note: 
           for n in note:
               fp.write("\t\t%s" % n.encode("utf-8") + "\n")
@@ -91,11 +94,23 @@ def convertCocoaEpoch(cocoa_timestamp):
   
   return strftime("%Y-%m-%d %H:%M:%S", time.gmtime(timestamp))
 
+def getTags(objects):
+  objects = [o for o in objects if o.attributes["type"].value == 'TAG']
+  tags = {}
+  for object in objects:
+    attribute_nodes = object.getElementsByTagName("attribute")   
+    for attribute_node in attribute_nodes:
+      if attribute_node.attributes['name'].value == 'title':
+        if attribute_node.childNodes:
+            tags[object.attributes['id'].value] = attribute_node.childNodes[0].nodeValue.encode("utf-8")
+    
+  return tags
+
 def getTodos(projects, objects):
   """
     Get todos for each project
   """
-
+  tags_dict = getTags(objects)
   for project in projects:
     for ref_id in project['ref_ids'].split():
       for object in objects:
@@ -105,6 +120,8 @@ def getTodos(projects, objects):
           content      = ""
           datemodified = ""
           datecreated  = ""
+          datecompleted= ""
+          tags         = ""           
           for attribute_node in attribute_nodes:
             if attribute_node.attributes['name'].value == 'title':
               if attribute_node.childNodes:
@@ -120,7 +137,11 @@ def getTodos(projects, objects):
               # <attribute name="datecreated" >306520491.00000000000000000000
               if attribute_node.attributes['name'].value == 'datecreated':
                 datecreated = convertCocoaEpoch(attribute_node.childNodes[0].\
-                    nodeValue.encode("utf-8"))
+                    nodeValue.encode("utf-8"))            
+              #<attribute name="datecompleted" type="date">292880221.18648099899291992188
+              if attribute_node.attributes['name'].value == 'datecompleted':
+                datecompleted = convertCocoaEpoch(attribute_node.childNodes[0].\
+                    nodeValue.encode("utf-8"))            
               if attribute_node.attributes['name'].value == 'content':
                 content = attribute_node.childNodes[0].nodeValue.encode("utf-8")   
                 html = re.sub('\\\\u(..)(..)',"\\u"+r'\2\1', content)
@@ -130,8 +151,17 @@ def getTodos(projects, objects):
                 for l in html.iterlinks():
                     content += [l[2]]
                 break
+                
+            relationship_nodes = object.getElementsByTagName("relationship")
+            for relationship_node in relationship_nodes:
+              if relationship_node.attributes['name'].value == 'tags':
+                try:
+                  tags_id = relationship_node.attributes['idrefs'].value
+                  tags = [tags_dict[t_id] for t_id in tags_id.split()]
+                except:
+                  tags = ""
 
-          project['todos'].append([title, content, datecreated, datemodified])
+          project['todos'].append([title, content, datecreated, datemodified, datecompleted, tags])
   return projects
 
 
