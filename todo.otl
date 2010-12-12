@@ -7,13 +7,16 @@ Eval outline format
 			notes
 		todo n
 
+[_] Parse notes
+	[_] pretty print utf-8 characters
+	[_] delete links to files and mails (they are viewed as hashed data)
+	[X] attribute -> name="content" of any todo
+	[X] notes have a lot of junk. find out how to remove it.
+
 [_] Make template
 	[_] Don't just ouput as an outline; make it generic
 	[_] Eval new name - "things export"
 
-[_] Parse notes
-	[X] attribute -> name="content" of any todo
-	[_] notes have a lot of junk. find out how to remove it.
 
 
 Parse tags
@@ -35,6 +38,3 @@ Parse tags
 	[X] NEXT (FocusNextActions)
 	[X] TRASH (FocusTrash)
 	[X] MAYBE (FocusMaybe)
-
-
-
