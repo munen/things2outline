@@ -31,6 +31,18 @@ Eval outline format
 	;Cocoa epoch with double float precision. UNIX epoch is up to 1280000000 (1970), and these numbers are more around 300000000. Cocoa epoch is 2001.
 	;http://culturedcode.com/forums/read.php?7,42287
 
+[_] Command line options
+	[_] console output (default?)
+		-o file output
+	[_] default things database path
+		~/Library/Application\ Support/Cultured\ Code/Things/Database.xml
+	    -d custom db location
+	[_] -p Retrieves projects only ?
+	[_] -P pattern
+		Retrieves single project with todos related
+		Maybe is better all projects that match pattern
+
+
 ----------------------------------------
 [X] 100% Parse todos that have no assigned project
 	[X] INBOX
