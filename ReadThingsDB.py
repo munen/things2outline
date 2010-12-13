@@ -4,7 +4,7 @@
 from optparse import OptionParser
 from time import strftime
 from xml.dom import minidom
-import sys
+import sys, os
 import re
 import lxml.html
 import time
@@ -58,8 +58,10 @@ def getTodosInCategory(objects, things_category):
 
 def writeOutline(outline_file, projects):
   """ Writes the project information to an outline file """
-
-  fp = open(outline_file, "w")
+  if outline_file:
+    fp = open(outline_file, "w")
+  else:
+    fp = sys.stdout
   for project in projects:
     fp.write("[" + project['title'] + "]\n")
     for todo, note, created, modified, completed, tags in project['todos']:
@@ -203,6 +205,16 @@ def getProjects(objects):
           projects.append({'title': title, 'ref_ids': ref_ids, 'todos':[]})
   return projects
 
+def getDefaultThingsXml():
+  """docstring for getDefaultDb"""
+  return 
+  pass
+
+
+DEFAULT_THINGS_XML = os.path.expanduser('~') + \
+                     '/Library/Application Support/Cultured Code/Things/Database.xml'
+
+
 if __name__ == "__main__":
   parser = OptionParser()
   parser.add_option("-d", "--database", 
@@ -211,9 +223,17 @@ if __name__ == "__main__":
                     help="Output outline", metavar="OTL")
   
   (options, args) = parser.parse_args()
-  if not options.database or not options.output:
+
+  database = None
+  if os.path.exists(DEFAULT_THINGS_XML):
+    database = DEFAULT_THINGS_XML 
+  output_file = None
+  if options.database:
+    database = options.database
+  if options.output:
+    output_file = options.output
+  if not database:     
     parser.print_help()
     sys.exit(1)
-  else:
-    readThingsDB(options.database, options.output)
+  readThingsDB(database, output_file)
     

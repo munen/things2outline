@@ -32,9 +32,9 @@ Eval outline format
 	;http://culturedcode.com/forums/read.php?7,42287
 
 [_] Command line options
-	[_] console output (default?)
+	[X] console output (default?)
 		-o file output
-	[_] default things database path
+	[X] default things database path
 		~/Library/Application\ Support/Cultured\ Code/Things/Database.xml
 	    -d custom db location
 	[_] -p Retrieves projects only ?
