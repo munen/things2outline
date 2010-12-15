@@ -8,8 +8,6 @@ import sys, os
 import re
 import lxml.html
 import time
-from IPython.Shell import IPShellEmbed        
-ipshell = IPShellEmbed() 
 
 def readThingsDB(things_xml_path, outline_file):
   """
