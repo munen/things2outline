@@ -8,6 +8,8 @@ import sys, os
 import re
 import lxml.html
 import time
+from IPython.Shell import IPShellEmbed        
+ipshell = IPShellEmbed() 
 
 def readThingsDB(things_xml_path, outline_file):
   """
@@ -67,16 +69,16 @@ def writeOutline(outline_file, projects):
     for todo, note, created, modified, completed, tags in project['todos']:
       fp.write("\t%s"%todo + "\n")
       if tags:
-        fp.write("\t\t:tags %s" % unicode(", ",'utf-8').join(tags) + "\n")
+        fp.write("\t\t:tags %s" % ", ".join(tags) + "\n")
           
       fp.write("\t\t:created %s"%created + "\n")
       if created != modified:
         fp.write("\t\t:modified %s"%modified + "\n")
       if completed:
         fp.write("\t\t:completed %s"%completed + "\n")
-      if note: 
+      if note:                         
           for n in note:
-              fp.write("\t\t%s" % n.encode("utf-8") + "\n")
+              fp.write("\t\t%s" % n.encode('utf-8') + "\n")
     fp.write("\n")
   fp.close()
 
@@ -145,9 +147,11 @@ def getTodos(projects, objects):
                 datecompleted = convertCocoaEpoch(attribute_node.childNodes[0].\
                     nodeValue.encode("utf-8"))
               if attribute_node.attributes['name'].value == 'content':
-                content = attribute_node.childNodes[0].nodeValue.encode("utf-8")   
-                html = re.sub('\\\\u(..)(..)',"\\u"+r'\2\1', content)
-                html = html.decode('unicode-escape')
+                content = attribute_node.childNodes[0].nodeValue #.encode("utf-8")
+                # lets encode in writeOutline               
+                # I think we need to translate all this things
+                html = content.replace('\\u3c00', '<').replace('\\u3e00', '>') 
+                html = html.replace('\u2600', '&')
                 html = lxml.html.fromstring(html)
                 content = html.text_content().split('\n')
                 for l in html.iterlinks():
